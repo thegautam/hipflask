@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 import tempfile
 
@@ -20,13 +21,13 @@ def app():
     return app
 
 
-def assert_text_message(result, message):
-    ''' Helper method to test text message success response '''
+def check_get_text(result):
+    ''' Helper method to get text message after checking for success '''
     assert result.status_code == SUCCESS_CODE, 'Invalid status'
     data = json.loads(result.data)
     messages = data['messages']
     assert messages[0]['type'] == 'text', 'Invalid type'
-    assert messages[0]['text'] == message, 'Invalid greeting'
+    return messages[0]['text']
 
 
 def test_user_join(app):
@@ -38,7 +39,8 @@ def test_user_join(app):
         "name": name
     }
     result = app.test_client().post(API, data=payload)
-    assert_text_message(result, 'Hello, {}!'.format(name))
+    response = check_get_text(result)
+    assert response == 'Hello, {}!'.format(name), 'Invalid greeting'
 
 
 def test_weather(app):
@@ -49,5 +51,5 @@ def test_weather(app):
         "text": "Weather in {}".format(city)
     }
     result = app.test_client().post(API, data=payload)
-    assert_text_message(result, 'Hello, {}!'.format(city))
-
+    response = check_get_text(result)
+    assert re.match('{} is \d+F and [rainy]'.format(city), response)
