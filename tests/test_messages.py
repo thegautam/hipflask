@@ -1,14 +1,15 @@
-import sys
+import json
 import os
+import sys
 import tempfile
-import pytest
 
+import pytest
 from flask import Flask, request
 
-from hipflask.messages import Message
 from hipflask.app import setup_app
+from hipflask.messages import Message
 
-SUCCESS_CODE = 201
+SUCCESS_CODE = 200
 
 def test_user_join():
     app, _ = setup_app()
@@ -21,5 +22,7 @@ def test_user_join():
     }
     result = app.test_client().post(url, data=payload)
     assert result.status_code == SUCCESS_CODE, 'Invalid status'
-    assert result.data.messages[0].type == 'text', 'Invalid type'
-    assert result.data.messages[0].text == 'Hello, {}!'.format(name), 'Invalid greeting'
+    data = json.loads(result.data)
+    messages = data['messages']
+    assert messages[0]['type'] == 'text', 'Invalid type'
+    assert messages[0]['text'] == 'Hello, {}!'.format(name), 'Invalid greeting'
