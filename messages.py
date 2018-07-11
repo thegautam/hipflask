@@ -4,7 +4,13 @@ from flask_restful import Resource
 
 class WeatherIntent():
     def _get_location(self, message):
-        return 'Seattle'
+        words = message.split()
+        for prev, curr in zip(words, words[1:]):
+            print(prev)
+            if prev == 'in':
+                return curr
+
+        return None
 
     def _get_weather(self, location):
         return '{} is 51F and raining.'.format(location)
@@ -30,7 +36,7 @@ class Message(Resource):
 
     def _get_intent(self, message):
         ''' Get the intent class from the message '''
-        if 'weather' in message.lower().split():
+        if 'weather' in message.split():
             return WeatherIntent()
       
         return UnknownIntent()
@@ -47,7 +53,7 @@ class Message(Resource):
             name = data['name']
             return self._text_response('Hello, {}!'.format(name))
         else:
-            message = data['text']
+            message = data['text'].lower()
             intent = self._get_intent(message)
             response = intent.process(message)
             return self._text_response(response)

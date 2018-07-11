@@ -1,3 +1,4 @@
+import itertools
 import json
 import os
 import re
@@ -42,14 +43,20 @@ def test_user_join(app):
     response = check_get_text(result)
     assert response == 'Hello, {}!'.format(name), 'Invalid greeting'
 
+locations = ['sf', 'seattle', '15213']
+messages = ['Weather in {}', 'what is weather in {}', '{} weather']
 
-def test_weather(app):
-    city = "Seattle"
+
+@pytest.mark.parametrize('message,location', 
+                         itertools.product(messages, locations))
+def test_weather(app, message, location):
+    text = message.format(location)
     payload = {
         "action": "message",
         "user_id": 123456,
-        "text": "Weather in {}".format(city)
+        "text": text
     }
     result = app.test_client().post(API, data=payload)
     response = check_get_text(result)
-    assert re.match('{} is \d+F and [rainy]'.format(city), response)
+    assert re.match('{} is \d+F and [raining]'.format(location),
+                    '{}: {}'.format(text, response))
