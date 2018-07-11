@@ -3,6 +3,7 @@ from flask_restful import Api, Resource
 from flask_cors import CORS
 from .messages import Message
 
+
 def setup_app():
     # Setup the app
     app = Flask(__name__)
