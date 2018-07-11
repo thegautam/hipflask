@@ -16,4 +16,4 @@ def setup_app():
 app, api = setup_app()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=9000)
