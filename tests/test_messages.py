@@ -43,14 +43,15 @@ def test_user_join(app):
     response = check_get_text(result)
     assert response == 'Hello, {}!'.format(name), 'Invalid greeting'
 
-locations = ['sf', 'seattle', '15213']
+locations = [('SF', 'SF'), ('seAttle', 'Seattle'), ('San Francisco', 'SF'),
+             ('15213', 'Pittsburgh')]
 messages = ['Weather in {}', 'what is weather in {}', '{} weather']
 
 
 @pytest.mark.parametrize('message,location', 
                          itertools.product(messages, locations))
 def test_weather(app, message, location):
-    text = message.format(location)
+    text = message.format(location[0])
     payload = {
         "action": "message",
         "user_id": 123456,
@@ -58,5 +59,5 @@ def test_weather(app, message, location):
     }
     result = app.test_client().post(API, data=payload)
     response = check_get_text(result)
-    assert re.match('{} is \d+F and [raining]'.format(location),
-                    '{}: {}'.format(text, response))
+    assert re.match('{} is 51F and raining'.format(location[1]), response), \
+        '{}: {}'.format(text, response)

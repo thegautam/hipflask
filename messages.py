@@ -1,23 +1,20 @@
+import nltk
+
 from flask import request
 from flask_restful import Resource
 
+from .location import Location
+
 
 class WeatherIntent():
-    def _get_location(self, message):
-        words = message.split()
-        for prev, curr in zip(words, words[1:]):
-            print(prev)
-            if prev == 'in':
-                return curr
-
-        return None
-
-    def _get_weather(self, location):
-        return '{} is 51F and raining.'.format(location)
+    def _get_weather(self, name, lat, lng):
+        return '{} is 51F and raining.'.format(name)
 
     def process(self, message):
-        location = self._get_location(message)
-        weather = self._get_weather(location)
+        loc = Location(message)
+        if not loc.parsed:
+            return False, 'I couldn\'t identify the location for weather.'
+        weather = self._get_weather(loc.locality_short, loc.lat, loc.lng)
         return weather
 
 
@@ -36,7 +33,7 @@ class Message(Resource):
 
     def _get_intent(self, message):
         ''' Get the intent class from the message '''
-        if 'weather' in message.split():
+        if 'weather' in message.lower().split():
             return WeatherIntent()
       
         return UnknownIntent()
@@ -53,7 +50,7 @@ class Message(Resource):
             name = data['name']
             return self._text_response('Hello, {}!'.format(name))
         else:
-            message = data['text'].lower()
+            message = data['text']
             intent = self._get_intent(message)
             response = intent.process(message)
             return self._text_response(response)
