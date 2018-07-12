@@ -2,4 +2,5 @@ flask
 flask-cors
 flask-restful
 googlemaps
+pytest
 python-forecastio
