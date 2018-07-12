@@ -2,13 +2,18 @@ import nltk
 
 from flask import request
 from flask_restful import Resource
+import forecastio
 
 from .location import Location
+
+DARKSKY_KEY = '8b4d5ca925446f9db4f7d7d0aac8b40c'
 
 
 class WeatherIntent():
     def _get_weather(self, name, lat, lng):
-        return '{} is 51F and raining.'.format(name)
+        forecast = forecastio.load_forecast(DARKSKY_KEY, lat, lng).currently()
+        return '{} is {}F and {}.'.format(name, round(forecast.temperature),
+                                          forecast.summary.lower())
 
     def process(self, message):
         loc = Location(message)

@@ -59,5 +59,6 @@ def test_weather(app, message, location):
     }
     result = app.test_client().post(API, data=payload)
     response = check_get_text(result)
-    assert re.match('{} is 51F and raining'.format(location[1]), response), \
+    weather_re = location[1] + r' is -*\d{1,3}F and [\w\s]+\.'
+    assert re.match(weather_re, response), \
         '{}: {}'.format(text, response)
